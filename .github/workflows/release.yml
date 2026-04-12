@@ -67,7 +67,7 @@ jobs:
           name: "Release ${{ steps.set-version.outputs.NEW_VERSION }}"
           body: ${{ steps.create-release.outputs.RELEASE_BODY }}
           prerelease: false
-          draft: false
+          draft: true # 先创建草稿
 
 
   build-and-upload:
@@ -120,6 +120,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.increment-version.outputs.version }}
+          draft: false # 这里更新下状态
           files: |
             ./MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe
             ./MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe.blockmap
