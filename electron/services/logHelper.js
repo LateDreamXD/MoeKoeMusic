@@ -12,17 +12,14 @@ const openLogPath = () => {
  * @param {string} content
  */
 const cleanLogs = (content) => {
-    const matchs = {
-        mobile: /\bmobile=1[3-9]\d{9}/g,
-        token: /\btoken=[A-Za-z0-9]+/g,
-        key: /key=[A-Za-z0-9]+/g,
-        userid: /\buserid=\d+/g
-    }
-    Object.keys(matchs).forEach((key) => {
-        const match = content.match(matchs[key]);
-        if (match) {
-            content = content.replace(match[0], `${key}=***`);
-        }
+    const matchs = [
+        /\b(mobile)=1[3-9]\d{9}/gm,
+        /\b(token)=[A-Za-z0-9]+/gm,
+        /(key)=[A-Za-z0-9]+/gm,
+        /\b(userid)=\d+/gm
+    ];
+    matchs.forEach((match) => {
+        content = content.replace(match, '$1=***');
     });
     return content;
 }
