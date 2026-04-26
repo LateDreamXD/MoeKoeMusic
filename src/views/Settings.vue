@@ -225,6 +225,7 @@ const selectedSettings = ref({
     loudnessNormalization: { displayText: t('guan-bi'), value: 'off' },
     pauseOnAudioOutputChange: { displayText: t('guan-bi'), value: 'off' },
     audioOutputDevice: { displayText: '默认', value: 'default' },
+    disableTitleUpdate: { displayText: t('guan-bi'), value: 'off' },
 });
 
 // 设置分区配置
@@ -428,6 +429,12 @@ const settingSections = computed(() => [
                 helpLink: 'https://music.moekoe.cn/guide/proxy-settings.html'
             },
             {
+                key: 'disableTitleUpdate',
+                label: '禁止标题更新',
+                showRefreshHint: true,
+                refreshHintText: t('zhong-qi-hou-sheng-xiao')
+            },
+            {
                 key: 'log',
                 label: '日志',
                 customText: '操作'
@@ -481,6 +488,7 @@ const getItemIcon = (key) => {
         'pwa': 'fas fa-mobile-alt',
         'proxy': 'fas fa-random',
         'startupPage': 'fas fa-home',
+        'disableTitleUpdate': 'fas fa-arrow-rotate-right',
         log: 'fas fa-file-lines'
     };
     return iconMap[key] || 'fas fa-sliders-h';
@@ -731,6 +739,13 @@ const selectionTypeMap = {
         title: '音频输出设备(实验性)',
         options: []
     },
+    disableTitleUpdate: {
+        title: '禁止标题更新',
+        options: [
+            { displayText: t('da-kai'), value: 'on' },
+            { displayText: t('guan-bi'), value: 'off' }
+        ]
+    },
     log: {
         title: '日志',
         options: [
@@ -856,7 +871,7 @@ const openHelpLink = () => {
 };
 
 const selectOption = async (option) => {
-    const electronFeatures = ['desktopLyrics', 'statusBarLyrics', 'gpuAcceleration', 'minimizeToTray', 'highDpi', 'nativeTitleBar', 'touchBar', 'autoStart', 'startMinimized', 'preventAppSuspension', 'networkMode', 'poxySettings', 'apiMode', 'dataSource', 'statusBarLyrics', 'log'];
+    const electronFeatures = ['desktopLyrics', 'statusBarLyrics', 'gpuAcceleration', 'minimizeToTray', 'highDpi', 'nativeTitleBar', 'touchBar', 'autoStart', 'startMinimized', 'preventAppSuspension', 'networkMode', 'poxySettings', 'apiMode', 'dataSource', 'statusBarLyrics', 'disableTitleUpdate', 'log'];
     if (!isElectron() && electronFeatures.includes(selectionType.value)) {
         window.$modal.alert(t('fei-ke-hu-duan-huan-jing-wu-fa-qi-yong'));
         return;
@@ -950,7 +965,7 @@ const selectOption = async (option) => {
     await actions[selectionType.value]?.();
     saveSettings();
     if (!['apiMode', 'font', 'fontUrl', 'proxy', 'apiBaseUrlMode'].includes(selectionType.value)) closeSelection();
-    const refreshHintTypes = ['nativeTitleBar', 'lyricsBackground', 'lyricsFontSize', 'gpuAcceleration', 'highDpi', 'apiMode', 'apiBaseUrlMode', 'touchBar', 'preventAppSuspension', 'networkMode', 'font', 'proxy', 'dataSource', 'loudnessNormalization', 'statusBarLyrics'];
+    const refreshHintTypes = ['nativeTitleBar', 'lyricsBackground', 'lyricsFontSize', 'gpuAcceleration', 'highDpi', 'apiMode', 'apiBaseUrlMode', 'touchBar', 'preventAppSuspension', 'networkMode', 'font', 'proxy', 'dataSource', 'loudnessNormalization', 'statusBarLyrics', 'disableTitleUpdate'];
     if (refreshHintTypes.includes(selectionType.value)) {
         showRefreshHint.value[selectionType.value] = true;
     }

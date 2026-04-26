@@ -64,11 +64,24 @@ export function createWindow() {
             sandbox: false,
             webSecurity: false, // 禁用 CORS、同源策略
             allowRunningInsecureContent: true, // 允许混合内容
-            zoomFactor: 1.0
+            zoomFactor: 1.0,
         },
         icon: getIconPath('icon.ico')
     });
     bindExternalLinkHandler(mainWindow);
+
+    const defaultTitle = 'MoeKoe 萌音';
+    mainWindow.setTitle(defaultTitle);
+    mainWindow.on('page-title-updated', (ev, title, explicitSet) => {
+        if (savedConfig?.disableTitleUpdate === 'on') {
+            // ev.preventDefault(); // electron 39 好像有 bug, 这玩意阻止不了标题更新
+            setImmediate(() => {
+                if (mainWindow.getTitle() !== defaultTitle) {
+                    mainWindow.setTitle(defaultTitle);
+                }
+            });
+        }
+    });
 
     if (store.get('maximize')) {
         mainWindow.maximize();
