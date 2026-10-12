@@ -39,6 +39,7 @@ const routes = [
     },
     { path: '/lyrics', name: 'Lyrics', component: Lyrics },
     { path: '/video', name: 'VideoPlayer', component: VideoPlayer },
+    { path: '/mini-player', name: 'MiniPlayer', component: () => import('@/views/MiniPlayer.vue') }
 ];
 
 const router = createRouter({

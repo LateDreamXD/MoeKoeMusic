@@ -256,6 +256,202 @@ export function createMvWindow() {
     });
 }
 
+let mouseChecker = null;
+export function createMiniWindow() {
+    let isDocked = false;
+    let dockSide = null;
+    let isShrinked = false;
+    let isMoving = false;
+    let moveTimer = null;
+    const SHRINK_WIDTH = 8;
+    const EXPAND_WIDTH = 220;
+    const EDGE_THRESHOLD = 10;
+
+    const miniWindow = new BrowserWindow({
+        width: EXPAND_WIDTH,
+        height: 80,
+        resizable: false,
+        frame: false,
+        transparent: true,
+        titleBarStyle: 'hiddenInset',
+        backgroundColor: '#00000000',
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.cjs'),
+            contextIsolation: true,
+            nodeIntegration: false,
+            sandbox: false,
+            webSecurity: false, // 禁用 CORS、同源策略
+            allowRunningInsecureContent: true, // 允许混合内容
+            zoomFactor: 1.0,
+            devTools: isDev
+        },
+        icon: getIconPath('icon.ico'),
+        minimizable: false,
+        skipTaskbar: true,
+        alwaysOnTop: true,
+    });
+
+    const savedConfig = store.get('settings');
+    if (isDev) {
+        miniWindow.loadURL('http://localhost:8080#/mini-player');
+        miniWindow.webContents.openDevTools();
+    } else {
+        if (savedConfig?.networkMode == 'devnet') { //开发网
+        miniWindow.loadURL('http://localhost:8080#/mini-player');
+        } else if (savedConfig?.networkMode == 'testnet') { //测试网
+            miniWindow.loadURL('https://app.testnet.music.moekoe.cn#/mini-player');
+        } else { //主网
+            miniWindow.loadFile(path.join(__dirname, '../dist/index.html'), { hash: '/mini-player' });
+        }
+    }
+
+    function dockWindow(side) {
+        isDocked = true;
+
+        const bounds = miniWindow.getBounds();
+        const display = screen.getDisplayMatching(bounds);
+        const wa = display.workArea;
+        let newX;
+
+        if(side === 'left') {
+            newX = wa.x - bounds.width + SHRINK_WIDTH;
+        } else {
+            newX = wa.x + wa.width - SHRINK_WIDTH;
+        }
+
+        isMoving = true;
+        miniWindow.setBounds({
+            x: newX,
+            y: bounds.y,
+            width: bounds.width,
+            height: bounds.height
+        }, true);
+        isMoving = false;
+
+        isShrinked = true;
+    }
+
+    function checkWindowDock() {
+        const bounds = miniWindow.getBounds();
+        const display = screen.getDisplayMatching(bounds);
+        const wa = display.workArea;
+        const THRESHOLD = 10;
+
+        if (bounds.x <= wa.x + THRESHOLD) {
+            dockSide = 'left';
+            dockWindow('left');
+        } else if (bounds.x + bounds.width >= wa.x + wa.width - THRESHOLD) {
+            dockSide = 'right';
+            dockWindow('right');
+        } else {
+            isDocked = false;
+            dockSide = null;
+            isShrinked = false;
+        }
+    }
+
+    miniWindow.on('move', () => {
+        if(isMoving) return;
+
+        clearTimeout(moveTimer);
+        moveTimer = setTimeout(() => {
+            checkWindowDock();
+        }, 200);
+    });
+
+    function shrinkWindow(side) {
+        const bounds = miniWindow.getBounds();
+        const display = screen.getDisplayMatching(bounds);
+        const workArea = display.workArea;
+        let newX;
+
+        if (side === 'left') {
+            newX = workArea.x - EXPAND_WIDTH + SHRINK_WIDTH;
+        } else {
+            newX = workArea.x + workArea.width - SHRINK_WIDTH;
+        }
+
+        miniWindow.setBounds({
+            x: newX,
+            y: bounds.y,
+            width: EXPAND_WIDTH,
+            height: bounds.height
+        }, true);
+
+        isShrinked = true;
+        miniWindow.webContents.send('window-shrinked', side);
+    }
+
+    function expandWindow() {
+        const bounds = miniWindow.getBounds();
+        const workArea = screen.getDisplayMatching(bounds).workArea;
+        let newX;
+
+        if (bounds.x < workArea.x) {
+            newX = workArea.x;
+        } else {
+            newX = workArea.x + workArea.width - EXPAND_WIDTH;
+        }
+
+        miniWindow.setBounds({
+            x: newX,
+            y: bounds.y,
+            width: EXPAND_WIDTH,
+            height: bounds.height
+        }, true);
+
+        isShrinked = false;
+        miniWindow.webContents.send('window-expanded');
+    }
+
+    function isMouseInsideWindow() {
+        const point = screen.getCursorScreenPoint();
+        const bounds = miniWindow.getBounds();
+        return point.x >= bounds.x &&
+                point.x <= bounds.x + bounds.width &&
+                point.y >= bounds.y &&
+                point.y <= bounds.y + bounds.height;
+    }
+
+    function checkMouse() {
+        if(!isDocked) return;
+
+        const point = screen.getCursorScreenPoint();
+        const display = screen.getDisplayMatching(miniWindow.getBounds());
+        const wa = display.workArea;
+        const bounds = miniWindow.getBounds();
+
+        const nearDockEdge = dockSide === 'left'?
+            point.x - wa.x <= EDGE_THRESHOLD:
+            wa.x + wa.width - point.x <= EDGE_THRESHOLD;
+
+        const mouseInside = point.x >= bounds.x &&
+                            point.x <= bounds.x + bounds.width &&
+                            point.y >= bounds.y &&
+                            point.y <= bounds.y + bounds.height;
+
+        if (nearDockEdge && isShrinked) {
+            expandWindow();
+            return;
+        }
+
+        if (!mouseInside && !isShrinked) {
+            setTimeout(() => {
+                if(isDocked && !isMouseInsideWindow()) {
+                    shrinkWindow(dockSide);
+                }
+            }, 3000);
+        }
+    }
+
+    mouseChecker = setInterval(checkMouse, 100);
+    miniWindow.once('close', () => {
+        if(mouseChecker) clearInterval(mouseChecker);
+    });
+
+    return miniWindow;
+}
+
 const getIconPath = (iconName, subPath = '') => path.join(
     isDev ? __dirname + '/../build/icons' : process.resourcesPath + '/icons',
     subPath,

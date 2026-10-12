@@ -1,5 +1,5 @@
 <template>
-  <div class="titlebar" v-if="isElectron && !isMac && $route.name !== 'VideoPlayer'">
+  <div class="titlebar" v-if="isElectron && !isMac && ($route.name !== 'VideoPlayer' && $route.name !== 'MiniPlayer')">
     <div class="window-controls">
       <button class="control-button" @click="minimizeWindow" id="minBtn"></button>
       <button class="control-button" @click="maximizeWindow" id="maxBtn"></button>

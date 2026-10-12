@@ -1,9 +1,9 @@
-import { app, ipcMain, globalShortcut, dialog, Notification, shell, session, powerSaveBlocker, nativeImage, screen } from 'electron';
+import { app, ipcMain, globalShortcut, dialog, Notification, shell, session, powerSaveBlocker, nativeImage, screen, BrowserWindow } from 'electron';
 import {
     createWindow, createTray, createTouchBar, startApiServer,
     stopApiServer, registerShortcut,
     playStartupSound, createLyricsWindow, setThumbarButtons,
-    registerProtocolHandler, sendHashAfterLoad, getTray, createMvWindow
+    registerProtocolHandler, sendHashAfterLoad, getTray, createMvWindow, createMiniWindow
 } from './appServices.js';
 import { initializeExtensions, cleanupExtensions } from './extensions/extensions.js';
 import { setupAutoUpdater, startUpdateDownload } from './services/updater.js';
@@ -18,6 +18,8 @@ import { fileURLToPath } from 'url';
 import { t } from './language/i18n.js';
 
 let mainWindow = null;
+/** @type {BrowserWindow | undefined} */
+let miniWindow = null;
 let blockerId = null;
 const store = new Store();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -345,6 +347,22 @@ ipcMain.handle('open-mv-window', (e, url) => {
             throw error;
         }
     })();
+});
+
+ipcMain.handle('toggle-mini-window', (e) => {
+    if(miniWindow && !miniWindow.isDestroyed()) {
+        miniWindow.close();
+        miniWindow = null;
+        mainWindow.show();
+    } else {
+        mainWindow.hide();
+        if(miniWindow && !miniWindow.isDestroyed()) {
+            miniWindow.show();
+        } else {
+            miniWindow = createMiniWindow();
+            miniWindow.show();
+        }
+    }
 });
 
 ipcMain.handle('open-log-path', async (e) => {
