@@ -271,8 +271,8 @@ export const openMvPlayer = async (router, hash, title = '视频播放') => {
         ? `${base}${href}`
         : `${base}#${href.startsWith('/') ? href : `/${href}`}`;
 
-    if (window.electronAPI) {
-        await window.electronAPI.openMvWindow(fullUrl);
+    if (window.tiny) {
+        await tiny.api.call('openMvWindow', { title, url: fullUrl });
         return;
     }
 

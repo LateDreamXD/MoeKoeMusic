@@ -31,6 +31,7 @@
             const lang = browserLang.split('-')[0];
             return Object.keys(messages).includes(lang) ? lang : 'ja';
         };
+        if(!window.tiny) location.reload();
         tiny.store.get('settings').then(settings => {
             document.documentElement.lang = settings?.language || getBrowserLocale();
 

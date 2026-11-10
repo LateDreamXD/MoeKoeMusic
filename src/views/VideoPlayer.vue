@@ -1,7 +1,7 @@
 <template>
     <div class="video-player-page">
         <div class="video-container">
-            <div class="video-header">
+            <div class="video-header" data-tiny-drag>
                 <button class="back-btn" @click="handleBackAction">
                     <i class="fas" :class="{ 'fa-xmark': shouldCloseWindow, 'fa-arrow-left': !shouldCloseWindow }"></i>
                     {{ shouldCloseWindow ? '关闭' : '返回' }}
@@ -112,7 +112,7 @@ const goBack = () => {
 };
 
 const closeWindow = () => {
-    window.close();
+    tiny.win.close();
 };
 
 const handleBackAction = () => {
