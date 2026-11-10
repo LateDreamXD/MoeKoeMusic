@@ -87,7 +87,8 @@ const handleNetworkChange = (online) => {
 
 const handleOnline = () => handleNetworkChange(true);
 const handleOffline = () => handleNetworkChange(false);
-const loadNavigationMode = (settings = JSON.parse(localStorage.getItem('settings')) || {}) => {
+const loadNavigationMode = async (settings = null) => {
+    if(!settings) settings = await tiny.store.get('settings');
     navigationMode.value = settings.navigationMode === 'side' ? 'side' : 'top';
     playerBarLayout.value = settings.playerBarLayout === 'content' ? 'content' : 'full';
     applyPlayerBarLayout();
@@ -151,8 +152,8 @@ watch(routeViewKey, (to, from) => {
     restoreRouteScrollPosition(route);
 });
 
-onMounted(() => {
-    const savedConfig = JSON.parse(localStorage.getItem('settings'));
+onMounted(async () => {
+    const savedConfig = await tiny.store.get('settings');
     if (savedConfig) {
         applyColorTheme(savedConfig['themeColor']);
         applyCustomFont(savedConfig.font || '');

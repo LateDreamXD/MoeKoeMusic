@@ -522,7 +522,7 @@ const shouldKeepSelectionOpen = (key) => {
 const getUnavailableSettingText = (item) => {
     const available = item?.available?.toLowerCase();
     if (!available) return '';
-    const currentPlatform = isElectron() ? window.electron.platform : 'web';
+    const currentPlatform = isElectron() ? tiny.system.os() : 'web';
     if (available === currentPlatform || available === 'client' && isElectron()) return '';
     return item.unavailableText || t('fei-ke-hu-duan-huan-jing-wu-fa-qi-yong');
 };
@@ -650,27 +650,26 @@ const selectFontOption = (option) => {
 };
 
 const isElectron = () => {
-    return typeof window !== 'undefined' && typeof window.electron !== 'undefined';
+    return 'tiny' in window;
 };
 const saveSettings = (additional = {}) => {
     const settingsToSave = Object.assign({}, Object.fromEntries(
         Object.entries(selectedSettings.value).map(([key, setting]) => [key, setting.value])
     ), additional);
     settingsToSave.shortcuts = shortcuts.value;
-    localStorage.setItem('settings', JSON.stringify(settingsToSave));
+    tiny.store.set('settings', settingsToSave);
     window.dispatchEvent(new CustomEvent('settings-change', {
         detail: { settings: settingsToSave }
     }));
-    isElectron() && window.electron.ipcRenderer.send('save-settings', JSON.parse(JSON.stringify(settingsToSave)));
 };
 
 const closeSelection = () => {
     isSelectionOpen.value = false;
 };
 
-onMounted(() => {
+onMounted(async () => {
     /** @type {typeof defaultSettings} */
-    const savedSettings = JSON.parse(localStorage.getItem('settings') || 'null') || defaultSettings;
+    const savedSettings = JSON.parse(await tiny.store.get('settings') || 'null') || defaultSettings;
 
     if (savedSettings) {
         if (savedSettings.apiBaseUrlMode === undefined) {
@@ -744,8 +743,11 @@ onMounted(() => {
         }, {});
     }
     if (isElectron()) {
-        appVersion.value = localStorage.getItem('version');
-        platform.value = window.electron.platform;
+        appVersion.value = (await tiny.app.info()).version;
+        let os = tiny.system.os().split('');
+        os[0] = os[0].toUpperCase();
+        os = os.join('');
+        platform.value = os;
     } else {
         appVersion.value = __VERSION__ || '';
         platform.value = 'Web';
@@ -1098,7 +1100,7 @@ const validateShortcut = (shortcut) => {
 };
 
 // 修改 saveShortcuts 函数，添加检查
-const saveShortcuts = () => {
+const saveShortcuts = async () => {
     if (!isElectron()) {
         window.$modal.alert(t('fei-ke-hu-duan-huan-jing-wu-fa-qi-yong'));
         return;
@@ -1115,11 +1117,9 @@ const saveShortcuts = () => {
     }
 
     try {
-        let settingsToSave = JSON.parse(localStorage.getItem('settings')) || {};
+        let settingsToSave = await tiny.store.get('settings');
         settingsToSave.shortcuts = shortcuts.value;
-        localStorage.setItem('settings', JSON.stringify(settingsToSave));
-        window.electron.ipcRenderer.send('save-settings', JSON.parse(JSON.stringify(settingsToSave)));
-        window.electron.ipcRenderer.send('custom-shortcut');
+        tiny.store.set('settings', settingsToSave);
     } catch (error) {
         console.error('保存设置失败:', error);
         window.$modal.alert(t('bao-cun-she-zhi-shi-bai'));

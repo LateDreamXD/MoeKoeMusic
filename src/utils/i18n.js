@@ -27,7 +27,7 @@ const getBrowserLocale = () => {
   return Object.keys(messages).includes(lang) ? lang : 'ja';
 };
 
-const defaultLocale = JSON.parse(localStorage.getItem('settings'))?.['language'] || getBrowserLocale();
+const defaultLocale = (await tiny.store.get('settings')).language || getBrowserLocale();
 
 const i18n = createI18n({
   locale: defaultLocale,

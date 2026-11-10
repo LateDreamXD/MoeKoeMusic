@@ -9,11 +9,11 @@
 </template>
 
 <script setup>
-const isElectron = typeof window !== 'undefined' && typeof window.electron !== 'undefined';
-const isMac = isElectron && window.electron.platform == 'darwin';
-const closeWindow = () => window.electron.ipcRenderer.send('window-control', 'close');
-const minimizeWindow = () => window.electron.ipcRenderer.send('window-control', 'minimize');
-const maximizeWindow = () => window.electron.ipcRenderer.send('window-control', 'maximize');
+const isElectron = 'tiny' in window;
+const isMac = isElectron && tiny.system.isMacOS();
+const closeWindow = () => tiny.win.close();
+const minimizeWindow = () => tiny.win.minimize();
+const maximizeWindow = () => tiny.win.zoom();
 </script>
 
 <style lang="scss" scoped>

@@ -182,14 +182,14 @@ export default function useAudioController({ onSongEnd, updateCurrentTime }) {
     };
 
     // 切换响度规格化
-    const toggleLoudnessNormalization = (enabled) => {
+    const toggleLoudnessNormalization = async (enabled) => {
         const previousState = loudnessNormalizationEnabled.value;
         loudnessNormalizationEnabled.value = enabled;
 
         // 保存到 settings
-        const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+        const settings = await tiny.store.get('settings');
         settings.loudnessNormalization = enabled ? 'on' : 'off';
-        localStorage.setItem('settings', JSON.stringify(settings));
+        tiny.store.set('settings', settings);
 
         // 如果 Web Audio 已经初始化，只能调整增益，无法完全禁用
         if (webAudioInitialized.value) {
@@ -209,7 +209,7 @@ export default function useAudioController({ onSongEnd, updateCurrentTime }) {
     };
 
     // 初始化音频设置
-    const initAudio = () => {
+    const initAudio = async () => {
         const savedVolume = localStorage.getItem('player_volume');
         if (savedVolume !== null) volume.value = parseFloat(savedVolume);
         isMuted.value = volume.value === 0;
@@ -225,7 +225,7 @@ export default function useAudioController({ onSongEnd, updateCurrentTime }) {
 
         // 检查是否启用响度规格化，但不立即初始化 Web Audio
         // Web Audio 将在首次播放时初始化，以确保在用户手势上下文中
-        const savedSettings = JSON.parse(localStorage.getItem('settings') || '{}');
+        const savedSettings = await tiny.store.get('settings');
         const savedNormalization = savedSettings.loudnessNormalization || 'off';
         loudnessNormalizationEnabled.value = savedNormalization === 'on';
 

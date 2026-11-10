@@ -1,5 +1,6 @@
 <template>
     <header class="app-header">
+        <div class="drag-region" data-tiny-drag></div>
         <nav class="navigation">
             <div class="navigation">
                 <button class="nav-arrow" @click="goBack" :disabled="!canGoBack">
@@ -163,9 +164,9 @@ const toggleProfile = () => {
     showProfile.value = !showProfile.value;
 };
 
-const getSearch = () => {
+const getSearch = async () => {
     const keyword = searchQuery.value.trim();
-    const settings = JSON.parse(localStorage.getItem('settings')) || {};
+    const settings = await tiny.store.get('settings') || {};
     searchMode.value = settings?.searchMode === 'recommend' ? 'recommend' : 'quick';
 
     if (searchMode.value === 'recommend') {
@@ -293,13 +294,11 @@ header {
     width: 100%;
     top: 0px;
     z-index: 9;
-}
-
-header::before {
-    content: '';
-    position: absolute;
-    inset: 0 100px 0 0;
-    -webkit-app-region: drag;
+    .drag-region {
+        position: absolute;
+        inset: 0 100px 0 0;
+        -webkit-app-region: drag;
+    }
 }
 
 .nav-arrow,

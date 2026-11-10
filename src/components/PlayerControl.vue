@@ -1699,13 +1699,13 @@ const searchSong = (songName) => {
 };
 
 // 组件挂载
-onMounted(() => {
+onMounted(async () => {
     console.log('[PlayerControl] 组件挂载');
 
     // 初始化音频设置
     audioController.initAudio();
 
-    const savedSettings = JSON.parse(localStorage.getItem('settings') || '{}');
+    const savedSettings = await tiny.store.get('settings');
     syncDesktopLyricsFont(savedSettings);
     setAudioOutputDeviceWatcherEnabled(savedSettings.pauseOnAudioOutputChange === 'on');
     void applyAudioOutputDevice(savedSettings.audioOutputDevice);

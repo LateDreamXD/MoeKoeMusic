@@ -47,11 +47,11 @@ const router = createRouter({
 });
 
 // 全局导航守卫
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
     console.log('完整的路由地址:', to.fullPath);
 
     const MoeAuth = MoeAuthStore();
-    const settings = JSON.parse(localStorage.getItem('settings')) || {};
+    const settings = await tiny.store.get('settings');
     const allowedStartupPages = ['Index', 'Discover', 'Library'];
     const startupPage = allowedStartupPages.includes(settings.startupPage) ? settings.startupPage : 'Index';
 

@@ -1,5 +1,6 @@
 <template>
     <div class="side-top-actions" :class="{ collapsed: isCollapsed }">
+        <div class="drag-region" data-tiny-drag></div>
         <div class="side-action-buttons">
             <button class="side-action-button" title="折叠/展开" @click="toggleCollapse">
                 <i :class="isCollapsed ? 'fas fa-indent' : 'fas fa-outdent'"></i>
@@ -226,9 +227,9 @@ const toggleCollapse = () => {
     emitSidebarWidth();
 };
 
-const getSearch = () => {
+const getSearch = async () => {
     const keyword = searchQuery.value.trim();
-    const settings = JSON.parse(localStorage.getItem('settings')) || {};
+    const settings = await tiny.store.get('settings') || {};
     searchMode.value = settings?.searchMode === 'recommend' ? 'recommend' : 'quick';
 
     if (searchMode.value === 'recommend') {
@@ -430,13 +431,12 @@ watch(() => MoeAuth.isAuthenticated, (isAuthenticated) => {
     background: var(--side-surface);
     border-bottom: 1px solid var(--side-border);
     transition: left 0.2s ease;
-}
 
-.side-top-actions::before {
-    content: '';
-    position: absolute;
-    inset: 0 100px 0 0;
-    -webkit-app-region: drag;
+    .drag-region {
+        position: absolute;
+        inset: 0 100px 0 0;
+        -webkit-app-region: drag;
+    }
 }
 
 .side-top-actions.collapsed {

@@ -31,8 +31,13 @@
             const lang = browserLang.split('-')[0];
             return Object.keys(messages).includes(lang) ? lang : 'ja';
         };
-        const settings = JSON.parse(localStorage.getItem('settings'));
-        document.documentElement.lang = settings?.language || getBrowserLocale();
+        tiny.store.get('settings').then(settings => {
+            document.documentElement.lang = settings?.language || getBrowserLocale();
+
+            let theme = settings.theme;
+            if(theme === 'auto') theme = matchMedia('(prefers-color-scheme: dark)').matches? 'dark': 'light';
+            document.documentElement.classList.add(theme);
+        });
     </script>
 </body>
 

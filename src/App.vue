@@ -27,7 +27,7 @@ let cleanupStatusBarIPC = null;
 const showTitleBar = ref(true);
 
 onMounted(async () => {
-    const settings = JSON.parse(localStorage.getItem('settings')) || {};
+    const settings = await tiny.store.get('settings') || {};
     showTitleBar.value = settings.nativeTitleBar !== 'on'; // 如果值为 'on'，则不显示 TitleBar
 
     const MoeAuth = MoeAuthStore();

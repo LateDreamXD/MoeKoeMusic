@@ -98,7 +98,7 @@ export default function useOnlineMusicQueue(t, musicQueueStore, currentSong, tim
 
             console.log('[SongQueue] 获取歌曲:', hash, name);
 
-            const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+            const settings = await tiny.store.get('settings');
             const data = {
                 hash: hash
             };

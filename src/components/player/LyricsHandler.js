@@ -44,7 +44,7 @@ export default function useLyricsHandler(t) {
 
         const requestId = ++activeLyricsRequestId;
         try {
-            const settings = JSON.parse(localStorage.getItem('settings') || '{}');
+            const settings = await tiny.store.get('settings');
             if (!showLyrics.value &&
                 (settings?.desktopLyrics !== 'on' && settings?.apiMode !== 'on' && settings?.statusBarLyrics !== 'on' && settings?.touchBar !== 'on')) {
                 return;

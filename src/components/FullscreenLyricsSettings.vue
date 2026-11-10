@@ -173,15 +173,8 @@ const updateSetting = (partialSettings) => {
     emit('change', settings);
 };
 
-onMounted(() => {
-    let savedSettings = {};
-    try {
-        savedSettings = JSON.parse(localStorage.getItem(storageKey) || '{}') || {};
-    } catch {
-        savedSettings = {};
-    }
-
-    const settings = normalizeSettings(savedSettings);
+onMounted(async () => {
+    const settings = await tiny.store.get('settings');
     emit('update:modelValue', settings);
     emit('change', settings);
 });
