@@ -669,7 +669,7 @@ const closeSelection = () => {
 
 onMounted(async () => {
     /** @type {typeof defaultSettings} */
-    const savedSettings = JSON.parse(await tiny.store.get('settings') || 'null') || defaultSettings;
+    const savedSettings = await tiny.store.get('settings') || defaultSettings;
 
     if (savedSettings) {
         if (savedSettings.apiBaseUrlMode === undefined) {
@@ -978,7 +978,7 @@ const displayShortcut = (key) => {
     if (!shortcuts.value?.[key]) return false;
     const keys = {
         'Meta': isElectron() ?
-            window?.electron.platform === 'darwin' ? '⌘' : '<i class="fab fa-windows"></i>' :
+            tiny.system.isMacOS() ? '⌘' : '<i class="fab fa-windows"></i>' :
             '⌘/<i class="fab fa-windows"></i>',
         'num0': 'Num0',
         'num1': 'Num1',
