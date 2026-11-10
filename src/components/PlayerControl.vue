@@ -1507,23 +1507,23 @@ const handleKeyDown = (event) => {
 
 // 初始化系统媒体快捷键
 const setupMediaShortcuts = () => {
-    if (!isElectron()) return;
+    // if (!isElectron()) return;
 
-    window.electron.ipcRenderer.on('play-previous-track', () => playSongFromQueue('previous'));
-    window.electron.ipcRenderer.on('play-next-track', () => playSongFromQueue('next'));
-    window.electron.ipcRenderer.on('volume-up', () => {
+    tiny.api.on('prev-track', () => playSongFromQueue('previous'));
+    tiny.api.on('next-track', () => playSongFromQueue('next'));
+    tiny.api.on('volume-up', () => {
         volume.value = Math.min(volume.value + 10, 100);
         changeVolume();
     });
-    window.electron.ipcRenderer.on('volume-down', () => {
+    tiny.api.on('volume-down', () => {
         volume.value = Math.max(volume.value - 10, 0);
         changeVolume();
     });
-    window.electron.ipcRenderer.on('toggle-play-pause', togglePlayPause);
-    window.electron.ipcRenderer.on('toggle-mute', toggleMute);
-    window.electron.ipcRenderer.on('toggle-like', () => playlistSelect.value.toLike());
-    window.electron.ipcRenderer.on('toggle-mode', togglePlaybackMode);
-    window.electron.ipcRenderer.on('url-params', async (_event, data) => {
+    tiny.api.on('toggle-play-pause', togglePlayPause);
+    tiny.api.on('toggle-mute', toggleMute);
+    tiny.api.on('toggle-like', () => playlistSelect.value.toLike());
+    tiny.api.on('toggle-mode', togglePlaybackMode);
+    tiny.api.on('url-params', async (_event, data) => {
         console.log('[PlayerControl] 接收到URL参数:', data);
 
         // 处理歌曲哈希参数
@@ -1904,14 +1904,14 @@ onUnmounted(() => {
 
     // 清理系统媒体快捷键
     if (isElectron()) {
-        window.electron.ipcRenderer.removeAllListeners('play-previous-track');
-        window.electron.ipcRenderer.removeAllListeners('play-next-track');
-        window.electron.ipcRenderer.removeAllListeners('volume-up');
-        window.electron.ipcRenderer.removeAllListeners('volume-down');
-        window.electron.ipcRenderer.removeAllListeners('toggle-play-pause');
-        window.electron.ipcRenderer.removeAllListeners('toggle-mute');
-        window.electron.ipcRenderer.removeAllListeners('toggle-like');
-        window.electron.ipcRenderer.removeAllListeners('toggle-mode');
+        tiny.api.off('play-previous-track');
+        tiny.api.off('play-next-track');
+        tiny.api.off('volume-up');
+        tiny.api.off('volume-down');
+        tiny.api.off('toggle-play-pause');
+        tiny.api.off('toggle-mute');
+        tiny.api.off('toggle-like');
+        tiny.api.off('toggle-mode');
     }
 
     // 清理键盘事件
