@@ -1,5 +1,5 @@
 import { computed } from 'vue';
-import defaultSettings from '@/../electron/defaultSettings.json';
+import defaultSettings from '@/../../data/defaultSettings.json';
 
 export const createSettingSections = (t, actions = {}) => computed(() => [
     {

@@ -8,7 +8,6 @@ import ModalPlugin from './plugins/ModalPlugin';
 import MessagePlugin from './plugins/MessagePlugin';
 import i18n from './utils/i18n';
 import '@/assets/themes/dark.scss';
-import { registerSW } from 'virtual:pwa-register'
 
 const app = createApp(App);
 const pinia = createPinia();

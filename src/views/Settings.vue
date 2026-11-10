@@ -267,7 +267,7 @@ import { applyCustomFont, requestMicrophonePermission } from '../utils/utils';
 import { DEFAULT_API_BASE_URL, validateApiBaseUrl, testApiBaseUrl as testApiBaseUrlRequest } from '@/utils/apiBaseUrl';
 import { useSettingsConfig } from '@/config/settings';
 import { ONBOARDING_GUIDE_EVENT } from '@/config/onboardingGuide';
-import defaultSettings from '@/../electron/defaultSettings.json';
+import defaultSettings from '@/../../data/defaultSettings.json';
 
 const MoeAuth = MoeAuthStore();
 const { t } = useI18n();
