@@ -257,7 +257,7 @@
         <div class="empty-icon">
             <i class="fas fa-puzzle-piece"></i>
         </div>
-        <h4>{{ t('web-cha-jian-ti-shi') }}</h4>
+        <h4>插件系统开发中...</h4>
     </div>
 </template>
 

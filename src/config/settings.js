@@ -137,7 +137,8 @@ export const createSettingSections = (t, actions = {}) => computed(() => [
                     { displayText: '高级', value: 'custom' }
                 ],
                 available: 'client',
-                label: '托盘菜单'
+                label: '托盘菜单',
+                hidden: true
             }
         ]
     },
@@ -230,7 +231,8 @@ export const createSettingSections = (t, actions = {}) => computed(() => [
                 icon: '🔌 ',
                 showRefreshHint: true,
                 refreshHintText: t('zhong-qi-hou-sheng-xiao'),
-                helpLink: 'https://music.moekoe.cn/guide/data-source.html'
+                helpLink: 'https://music.moekoe.cn/guide/data-source.html',
+                hidden: true
             }
         ]
     },
@@ -312,7 +314,8 @@ export const createSettingSections = (t, actions = {}) => computed(() => [
                 available: 'client',
                 label: t('jin-yong-gpu-jia-su-zhong-qi-sheng-xiao'),
                 showRefreshHint: true,
-                refreshHintText: t('zhong-qi-hou-sheng-xiao')
+                refreshHintText: t('zhong-qi-hou-sheng-xiao'),
+                hidden: true
             },
             {
                 key: 'highDpi',
@@ -328,7 +331,8 @@ export const createSettingSections = (t, actions = {}) => computed(() => [
                 available: 'client',
                 label: t('shi-pei-gao-dpi'),
                 showRefreshHint: true,
-                refreshHintText: t('zhong-qi-hou-sheng-xiao')
+                refreshHintText: t('zhong-qi-hou-sheng-xiao'),
+                hidden: true
             },
             {
                 key: 'dpiScale',
@@ -387,7 +391,8 @@ export const createSettingSections = (t, actions = {}) => computed(() => [
                 label: t('wang-luo-mo-shi'),
                 showRefreshHint: true,
                 refreshHintText: t('zhong-qi-hou-sheng-xiao'),
-                helpLink: 'https://music.moekoe.cn/guide/network-modes.html'
+                helpLink: 'https://music.moekoe.cn/guide/network-modes.html',
+                hidden: true
             },
             {
                 key: 'startMinimized',
@@ -430,7 +435,8 @@ export const createSettingSections = (t, actions = {}) => computed(() => [
                 keepOpen: true,
                 label: t('api-mo-shi'),
                 showRefreshHint: true,
-                refreshHintText: t('zhong-qi-hou-sheng-xiao')
+                refreshHintText: t('zhong-qi-hou-sheng-xiao'),
+                hidden: true
             },
             {
                 key: 'apiModeConfig',
@@ -448,7 +454,6 @@ export const createSettingSections = (t, actions = {}) => computed(() => [
                     { displayText: '默认', value: 'default' },
                     { displayText: '自定义', value: 'custom' }
                 ],
-                available: 'web',
                 keepOpen: true,
                 label: 'RPC地址',
                 showRefreshHint: true,
@@ -526,7 +531,8 @@ export const createSettingSections = (t, actions = {}) => computed(() => [
                 ],
                 available: 'client',
                 label: '日志',
-                customText: '操作'
+                customText: '操作',
+                hidden: true
             },
             {
                 key: 'backgroundThrottling',
@@ -540,7 +546,8 @@ export const createSettingSections = (t, actions = {}) => computed(() => [
                 available: 'client',
                 label: '禁用后台节流',
                 showRefreshHint: true,
-                refreshHintText: '重启后生效'    
+                refreshHintText: '重启后生效',
+                hidden: true
             }
         ]
     }
