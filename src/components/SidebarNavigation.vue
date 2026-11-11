@@ -145,7 +145,7 @@
             <h2>{{ $t('mian-ze-sheng-ming') }}</h2>
             <p v-for="key in ABOUT_DISCLAIMER_KEYS" :key="key">{{ $t(key) }}</p>
             <button @click="Disclaimer">{{ $t('guan-bi-an-niu') }}</button>
-            <div class="version-number">© MoeKoe Music <span v-if="appVersion">V{{ appVersion }} - {{ platform }}</span></div>
+            <div class="version-number">© MoeKoe Music <span v-if="appVersion.web && appVersion.app">V{{ appVersion.web }}; MoeKoe Music Lite V{{ appVersion.app }} - {{ platform }}</span></div>
         </div>
     </div>
     <AppUpdateDialog ref="updateDialogRef" :app-version="appVersion" :platform="platform"
@@ -153,7 +153,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { reactive, ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { get } from '../utils/request';
@@ -173,7 +173,7 @@ const forwardStack = ref([]);
 const showProfile = ref(false);
 const isDisclaimerVisible = ref(false);
 const showNewBadge = ref(false);
-const appVersion = ref('');
+const appVersion = reactive({ web: '', app: '' });
 const platform = ref('');
 const updateDialogRef = ref(null);
 const userPlaylists = ref([]);
@@ -345,16 +345,19 @@ const handleUpdateEntryClick = () => {
     updateDialogRef.value?.handleEntryClick();
 };
 
-onMounted(() => {
+onMounted(async () => {
     updateNavigationStatus();
     emitSidebarWidth();
     void getplaylist();
-    if (window.electron) {
-        window.electron.ipcRenderer.on('version', (_event, version) => {
-            appVersion.value = version;
-            platform.value = window.electron.platform;
-            localStorage.setItem('version', version);
-        });
+    if (window.tiny) {
+        const { version } = await tiny.app.info();
+        appVersion.app = version;
+        appVersion.web = __VERSION__;
+        
+        let os = tiny.system.os().split('');
+        os[0] = os[0].toUpperCase();
+        os = os.join('');
+        platform.value = os;
     } else {
         appVersion.value = __VERSION__ || '';
         platform.value = 'Web';

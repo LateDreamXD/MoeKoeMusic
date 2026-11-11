@@ -56,7 +56,7 @@
             </div>
             <div class="version-info">
                 <p>© MoeKoe Music</p>
-                <span v-if="appVersion">V{{ appVersion }} - {{ platform }}</span>
+                <span v-if="appVersion.web && appVersion.app">V{{ appVersion.web }}; Lite V{{ appVersion.app }} - {{ platform }}</span>
             </div>
         </div>
 
@@ -272,7 +272,7 @@ import defaultSettings from '@/../../data/defaultSettings.json';
 const MoeAuth = MoeAuthStore();
 const { t } = useI18n();
 const { proxy } = getCurrentInstance();
-const appVersion = ref('');
+const appVersion = reactive({ web: '', app: '' });
 const platform = ref('');
 const activeTab = ref(0);
 const defaultApiBaseUrl = DEFAULT_API_BASE_URL;
@@ -743,7 +743,10 @@ onMounted(async () => {
         }, {});
     }
     if (isElectron()) {
-        appVersion.value = (await tiny.app.info()).version;
+        const { version } = await tiny.app.info();
+        appVersion.app = version;
+        appVersion.web = __VERSION__;
+
         let os = tiny.system.os().split('');
         os[0] = os[0].toUpperCase();
         os = os.join('');
