@@ -11,7 +11,10 @@
 <script setup>
 const isElectron = 'tiny' in window;
 const isMac = isElectron && tiny.system.isMacOS();
-const closeWindow = () => tiny.win.close();
+const closeWindow = async () => {
+  const settings = await tiny.store.get('settings');
+  settings.minimizeToTray === 'on'? tiny.win.hide(): tiny.win.close();
+}
 const minimizeWindow = () => tiny.win.minimize();
 const maximizeWindow = () => tiny.win.zoom();
 </script>
