@@ -27,17 +27,6 @@ window.addEventListener('unhandledrejection', event => {
   // window.$modal.alert('系统错误');
 });
 
-if (!window.electron && !import.meta.env.DEV) {
-  registerSW({
-    onNeedRefresh() {
-      console.log('有新内容可用，请刷新页面')
-    },
-    onOfflineReady() {
-      console.log('应用已准备好离线工作')
-    }
-  })
-}
-
 app.use(pinia);
 app.use(router);
 app.use(i18n);

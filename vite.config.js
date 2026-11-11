@@ -20,5 +20,9 @@ export default defineConfig({
 		alias: {
 			'@': path.resolve(import.meta.dirname, 'src'), // 设置路径别名
 		},
+	},
+	build: {
+		emptyOutDir: true,
+		outDir: path.resolve(import.meta.dirname, '..', 'dist')
 	}
 });

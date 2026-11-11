@@ -32,6 +32,5 @@ api/.serena/*
 dev-dist/*
 bun.lock
 package-lock.json
-vite.config.js*
 
 plugins/extensions/*
