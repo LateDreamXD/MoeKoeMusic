@@ -15,6 +15,7 @@ import LocalMusic from '@/views/LocalMusic.vue';
 import VideoPlayer from '@/views/VideoPlayer.vue';
 import Recognize from '@/views/Recognize.vue';
 import { MoeAuthStore } from '@/stores/store';
+import { getSettings } from '@/utils/settings';
 
 
 const routes = [
@@ -51,7 +52,7 @@ router.beforeEach(async (to, from, next) => {
     console.log('完整的路由地址:', to.fullPath);
 
     const MoeAuth = MoeAuthStore();
-    const settings = await tiny.store.get('settings');
+    const settings = await getSettings();
     const allowedStartupPages = ['Index', 'Discover', 'Library'];
     const startupPage = allowedStartupPages.includes(settings.startupPage) ? settings.startupPage : 'Index';
 

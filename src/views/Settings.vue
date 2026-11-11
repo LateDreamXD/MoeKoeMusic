@@ -267,7 +267,7 @@ import { applyCustomFont, requestMicrophonePermission } from '../utils/utils';
 import { DEFAULT_API_BASE_URL, validateApiBaseUrl, testApiBaseUrl as testApiBaseUrlRequest } from '@/utils/apiBaseUrl';
 import { useSettingsConfig } from '@/config/settings';
 import { ONBOARDING_GUIDE_EVENT } from '@/config/onboardingGuide';
-import defaultSettings from '@/../../data/defaultSettings.json';
+import { getSettings } from '@/utils/settings';
 
 const MoeAuth = MoeAuthStore();
 const { t } = useI18n();
@@ -669,7 +669,7 @@ const closeSelection = () => {
 
 onMounted(async () => {
     /** @type {typeof defaultSettings} */
-    const savedSettings = await tiny.store.get('settings') || defaultSettings;
+    const savedSettings = await getSettings();
 
     if (savedSettings) {
         if (savedSettings.apiBaseUrlMode === undefined) {
@@ -1120,7 +1120,7 @@ const saveShortcuts = async () => {
     }
 
     try {
-        let settingsToSave = await tiny.store.get('settings');
+        const settingsToSave = await getSettings();
         settingsToSave.shortcuts = shortcuts.value;
         tiny.store.set('settings', settingsToSave);
     } catch (error) {
@@ -1145,7 +1145,12 @@ const openResetConfirmation = async () => {
     const result = await window.$modal.confirm(t('ni-que-ren-hui-fu-chu-chang'));
     if (result) {
         localStorage.clear();
-        isElectron() && window.electron.ipcRenderer.send('clear-settings');
+        if(isElectron()) {
+            const promises = [];
+            const keys = Object.keys(await tiny.store.all());
+            keys.forEach((key) => promises.push(tiny.store.delete(key)));
+            await Promise.all(promises);
+        }
         window.$modal.alert(t('hui-fu-chu-chang-she-zhi-cheng-gong'));
     }
 };

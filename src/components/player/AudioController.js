@@ -1,3 +1,4 @@
+import { getSettings } from '@/utils/settings';
 import { ref } from 'vue';
 
 export default function useAudioController({ onSongEnd, updateCurrentTime }) {
@@ -187,7 +188,7 @@ export default function useAudioController({ onSongEnd, updateCurrentTime }) {
         loudnessNormalizationEnabled.value = enabled;
 
         // 保存到 settings
-        const settings = await tiny.store.get('settings');
+        const settings = await getSettings();
         settings.loudnessNormalization = enabled ? 'on' : 'off';
         tiny.store.set('settings', settings);
 
@@ -225,7 +226,7 @@ export default function useAudioController({ onSongEnd, updateCurrentTime }) {
 
         // 检查是否启用响度规格化，但不立即初始化 Web Audio
         // Web Audio 将在首次播放时初始化，以确保在用户手势上下文中
-        const savedSettings = await tiny.store.get('settings');
+        const savedSettings = await getSettings();
         const savedNormalization = savedSettings.loudnessNormalization || 'off';
         loudnessNormalizationEnabled.value = savedNormalization === 'on';
 

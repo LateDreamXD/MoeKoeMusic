@@ -9,10 +9,12 @@
 </template>
 
 <script setup>
+import { getSettings } from '@/utils/settings';
+
 const isElectron = 'tiny' in window;
 const isMac = isElectron && tiny.system.isMacOS();
 const closeWindow = async () => {
-  const settings = await tiny.store.get('settings');
+  const settings = await getSettings();
   settings.minimizeToTray === 'on'? tiny.win.hide(): tiny.win.close();
 }
 const minimizeWindow = () => tiny.win.minimize();

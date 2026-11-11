@@ -300,6 +300,7 @@ import {
     useHelpers,
     setAudioOutputDevice
 } from './player';
+import { getSettings } from '@/utils/settings';
 
 // 基础设置
 const queueList = ref(null);
@@ -458,7 +459,7 @@ const updateCurrentTime = throttle(async () => {
         mediaSession.updatePositionState(audio.currentTime, audio.duration, currentSpeed.value);
     }
 
-    const savedConfig = await tiny.store.get('settings');
+    const savedConfig = await getSettings();
     const hasLyricsData = Array.isArray(lyricsData.value) && lyricsData.value.length > 0;
     
     const statusBarLyricsEnabled = savedConfig?.statusBarLyrics === 'on';
@@ -1705,7 +1706,7 @@ onMounted(async () => {
     // 初始化音频设置
     audioController.initAudio();
 
-    const savedSettings = await tiny.store.get('settings');
+    const savedSettings = await getSettings();
     syncDesktopLyricsFont(savedSettings);
     setAudioOutputDeviceWatcherEnabled(savedSettings.pauseOnAudioOutputChange === 'on');
     void applyAudioOutputDevice(savedSettings.audioOutputDevice);

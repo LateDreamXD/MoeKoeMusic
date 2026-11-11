@@ -46,6 +46,7 @@ import SidebarNavigation from "@/components/SidebarNavigation.vue";
 import PlayerControl from "@/components/PlayerControl.vue";
 import OnboardingGuide from "@/components/OnboardingGuide.vue";
 import { setTheme, applyColorTheme, applyCustomFont } from '../utils/utils';
+import { getSettings } from '@/utils/settings';
 
 const route = useRoute();
 const playerControl = ref(null);
@@ -88,7 +89,7 @@ const handleNetworkChange = (online) => {
 const handleOnline = () => handleNetworkChange(true);
 const handleOffline = () => handleNetworkChange(false);
 const loadNavigationMode = async (settings = null) => {
-    if(!settings) settings = await tiny.store.get('settings');
+    if(!settings) settings = await getSettings();
     navigationMode.value = settings.navigationMode === 'side' ? 'side' : 'top';
     playerBarLayout.value = settings.playerBarLayout === 'content' ? 'content' : 'full';
     applyPlayerBarLayout();
@@ -153,7 +154,7 @@ watch(routeViewKey, (to, from) => {
 });
 
 onMounted(async () => {
-    const savedConfig = await tiny.store.get('settings');
+    const savedConfig = await getSettings();
     if (savedConfig) {
         applyColorTheme(savedConfig['themeColor']);
         applyCustomFont(savedConfig.font || '');

@@ -5,6 +5,7 @@ import ko from '../language/ko.json';
 import ru from '../language/ru.json';
 import zh_CN from '../language/zh-CN.json';
 import zh_TW from '../language/zh-TW.json';
+import { getSettings } from './settings';
 
 const messages = {
   en,
@@ -27,7 +28,7 @@ const getBrowserLocale = () => {
   return Object.keys(messages).includes(lang) ? lang : 'ja';
 };
 
-const defaultLocale = (await tiny.store.get('settings')).language || getBrowserLocale();
+const defaultLocale = (await getSettings()).language || getBrowserLocale();
 
 const i18n = createI18n({
   locale: defaultLocale,

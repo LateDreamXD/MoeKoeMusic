@@ -1,5 +1,6 @@
 import { get } from '../../../utils/request';
 import { MoeAuthStore } from '../../../stores/store';
+import { getSettings } from '@/utils/settings';
 
 const QUALITY_LEVELS = ['128', '320', 'flac', 'high', 'viper_atmos', 'viper_clear', 'viper_tape'];
 const QUALITY_LABELS = {
@@ -98,7 +99,7 @@ export default function useOnlineMusicQueue(t, musicQueueStore, currentSong, tim
 
             console.log('[SongQueue] 获取歌曲:', hash, name);
 
-            const settings = await tiny.store.get('settings');
+            const settings = await getSettings();
             const data = {
                 hash: hash
             };

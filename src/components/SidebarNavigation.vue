@@ -160,6 +160,7 @@ import { get } from '../utils/request';
 import { MoeAuthStore } from '../stores/store';
 import AppUpdateDialog from './AppUpdateDialog.vue';
 import { ABOUT_DISCLAIMER_KEYS, DISCLAIMER_BANNER_SRC } from '../config/disclaimer';
+import { getSettings } from '@/utils/settings';
 
 const MoeAuth = MoeAuthStore();
 const router = useRouter();
@@ -229,7 +230,7 @@ const toggleCollapse = () => {
 
 const getSearch = async () => {
     const keyword = searchQuery.value.trim();
-    const settings = await tiny.store.get('settings') || {};
+    const settings = await getSettings();
     searchMode.value = settings?.searchMode === 'recommend' ? 'recommend' : 'quick';
 
     if (searchMode.value === 'recommend') {

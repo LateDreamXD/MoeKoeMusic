@@ -88,6 +88,7 @@
 </template>
 
 <script setup>
+import { getSettings } from '@/utils/settings';
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -174,7 +175,7 @@ const updateSetting = (partialSettings) => {
 };
 
 onMounted(async () => {
-    const settings = await tiny.store.get('settings');
+    const settings = await getSettings();
     emit('update:modelValue', settings);
     emit('change', settings);
 });

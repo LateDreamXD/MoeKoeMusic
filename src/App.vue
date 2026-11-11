@@ -15,6 +15,7 @@ import TitleBar from '@/components/TitleBar.vue';
 import StatusBarLyrics from '@/components/StatusBarLyrics.vue';
 import { MoeAuthStore } from '@/stores/store';
 import logoImageSrc from '@/assets/images/tray/tray-icon@2x.png?url';
+import { getSettings } from './utils/settings';
 
 const route = useRoute();
 const isLyricsRoute = computed(() => route.path === '/lyrics');
@@ -27,7 +28,7 @@ let cleanupStatusBarIPC = null;
 const showTitleBar = ref(true);
 
 onMounted(async () => {
-    const settings = await tiny.store.get('settings') || {};
+    const settings = await getSettings();
     showTitleBar.value = settings.nativeTitleBar !== 'on'; // 如果值为 'on'，则不显示 TitleBar
 
     const MoeAuth = MoeAuthStore();

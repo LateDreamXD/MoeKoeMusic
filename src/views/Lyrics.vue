@@ -97,6 +97,7 @@
 </template>
 
 <script setup>
+import { getSettings } from '@/utils/settings'
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 
 let currentSongHash = ''
@@ -320,7 +321,7 @@ const handleColorChange = (color, type) => {
 
 const sendAction = async (action) => {
     if (action === 'close-lyrics' || action === 'display-lyrics') {
-        const settings = await tiny.store.get('settings');
+        const settings = await getSettings();
         settings.desktopLyrics = action === 'display-lyrics' ? 'on' : 'off';
         await tiny.store.set('settings', settings);
         await tiny.api.call('desktopLyrics', { show: settings.desktopLyrics === 'on' });
@@ -570,7 +571,7 @@ const fontFamilyFallback = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
 const escapeFontFamily = (fontFamily) => String(fontFamily).replace(/\\/g, '\\\\').replace(/"/g, '\\"')
 
 const loadDesktopLyricsFont = async () => {
-    const settings = await tiny.store.get('settings');
+    const settings = await getSettings();
     desktopLyricsFont.value = settings.desktopLyricsFont || '';
 }
 

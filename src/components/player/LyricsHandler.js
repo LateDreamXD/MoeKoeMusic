@@ -1,5 +1,6 @@
 import { ref, nextTick } from 'vue';
 import { get } from '../../utils/request';
+import { getSettings } from '@/utils/settings';
 
 export default function useLyricsHandler(t) {
     const lyricsData = ref([]);
@@ -44,7 +45,7 @@ export default function useLyricsHandler(t) {
 
         const requestId = ++activeLyricsRequestId;
         try {
-            const settings = await tiny.store.get('settings');
+            const settings = await getSettings();
             if (!showLyrics.value &&
                 (settings?.desktopLyrics !== 'on' && settings?.apiMode !== 'on' && settings?.statusBarLyrics !== 'on' && settings?.touchBar !== 'on')) {
                 return;

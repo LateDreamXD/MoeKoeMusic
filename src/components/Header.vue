@@ -83,6 +83,7 @@ import { MoeAuthStore } from '../stores/store';
 import { useI18n } from 'vue-i18n';
 import AppUpdateDialog from './AppUpdateDialog.vue';
 import { ABOUT_DISCLAIMER_KEYS, DISCLAIMER_BANNER_SRC } from '../config/disclaimer';
+import { getSettings } from '@/utils/settings';
 
 const MoeAuth = MoeAuthStore();
 const searchQuery = ref('');
@@ -166,7 +167,7 @@ const toggleProfile = () => {
 
 const getSearch = async () => {
     const keyword = searchQuery.value.trim();
-    const settings = await tiny.store.get('settings') || {};
+    const settings = await getSettings();
     searchMode.value = settings?.searchMode === 'recommend' ? 'recommend' : 'quick';
 
     if (searchMode.value === 'recommend') {

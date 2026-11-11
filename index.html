@@ -36,8 +36,8 @@
             document.documentElement.lang = settings?.language || getBrowserLocale();
 
             if(location.hash !== '#/lyrics') {
-                let theme = settings.theme;
-                if(theme === 'auto') theme = matchMedia('(prefers-color-scheme: dark)').matches? 'dark': 'light';
+                let theme = settings?.theme;
+                if(!theme || theme === 'auto') theme = matchMedia('(prefers-color-scheme: dark)').matches? 'dark': 'light';
                 document.documentElement.classList.add(theme);
             }
         });

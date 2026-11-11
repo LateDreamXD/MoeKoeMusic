@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { get } from '../../utils/request';
 import { MoeAuthStore } from '../../stores/store';
+import { getSettings } from '@/utils/settings';
 
 
 export function useHelpers(t) {
@@ -49,7 +50,7 @@ export function useHelpers(t) {
   const desktopLyrics = async () => {
     if (!isElectron()) return;
     
-    let savedConfig = await tiny.store.get('settings');
+    let savedConfig = await getSettings();
     if(savedConfig.desktopLyrics === 'on') savedConfig.desktopLyrics = 'off';
     else savedConfig.desktopLyrics = 'on';
     await tiny.store.set('settings', savedConfig);
