@@ -7,9 +7,7 @@ export function useHelpers(t) {
   const isInputFocused = ref(false);
   
   // 环境检测
-  const isElectron = () => {
-    return typeof window !== 'undefined' && typeof window.electron !== 'undefined';
-  };
+  const isElectron = () => 'tiny' in window;
   
   // 音量滚轮处理
   const handleVolumeScroll = (event, volume, changeVolume) => {
@@ -48,16 +46,14 @@ export function useHelpers(t) {
   };
   
   // 桌面歌词控制
-  const desktopLyrics = () => {
+  const desktopLyrics = async () => {
     if (!isElectron()) return;
     
-    let savedConfig = JSON.parse(localStorage.getItem('settings')) || {};
-    if(!savedConfig?.desktopLyrics) savedConfig.desktopLyrics = 'off';
-    let action = savedConfig?.desktopLyrics === 'off' ? 'display-lyrics' : 'close-lyrics';
-    window.electron.ipcRenderer.send('desktop-lyrics-action', action);
-    savedConfig.desktopLyrics = action === 'display-lyrics' ? 'on' : 'off';
-    localStorage.setItem('settings', JSON.stringify(savedConfig));
-    window.electron.ipcRenderer.send('save-settings', JSON.parse(JSON.stringify(savedConfig)));
+    let savedConfig = await tiny.store.get('settings');
+    if(savedConfig.desktopLyrics === 'on') savedConfig.desktopLyrics = 'off';
+    else savedConfig.desktopLyrics = 'on';
+    await tiny.store.set('settings', savedConfig);
+    await tiny.api.call('desktopLyrics', { show: savedConfig.desktopLyrics === 'on' });
   };
   
   // 节流函数

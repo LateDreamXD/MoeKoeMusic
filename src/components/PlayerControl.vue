@@ -447,7 +447,7 @@ let lastSentLyric = '';
 let lastSentTime = 0;
 
 // 节流处理的时间更新函数
-const updateCurrentTime = throttle(() => {
+const updateCurrentTime = throttle(async () => {
     currentTime.value = audio.currentTime;
     if (!isProgressDragging.value) {
         progressWidth.value = (currentTime.value / audio.duration) * 100;
@@ -458,7 +458,7 @@ const updateCurrentTime = throttle(() => {
         mediaSession.updatePositionState(audio.currentTime, audio.duration, currentSpeed.value);
     }
 
-    const savedConfig = JSON.parse(localStorage.getItem('settings') || '{}');
+    const savedConfig = await tiny.store.get('settings');
     const hasLyricsData = Array.isArray(lyricsData.value) && lyricsData.value.length > 0;
     
     const statusBarLyricsEnabled = savedConfig?.statusBarLyrics === 'on';
@@ -482,7 +482,7 @@ const updateCurrentTime = throttle(() => {
                 // 使用 JSON 序列化确保对象可以被克隆
                 try {
                     const lyricsPayload = hasLyricsData ? JSON.parse(JSON.stringify(lyricsData.value)) : [];
-                    window.electron.ipcRenderer.send('lyrics-data', {
+                    tiny.api.call('lycData', {
                         currentTime: audio.currentTime,
                         playing: playing.value,
                         lyricsData: lyricsPayload,
@@ -491,7 +491,7 @@ const updateCurrentTime = throttle(() => {
                     });
                 } catch (e) {
                     // 如果序列化失败，只发送必要的数据
-                    window.electron.ipcRenderer.send('lyrics-data', {
+                    tiny.api.call('lycData', {
                         currentTime: audio.currentTime,
                         playing: playing.value,
                         lyricsData: [],
@@ -517,10 +517,10 @@ const updateCurrentTime = throttle(() => {
             }
         }
         
-        if (isElectron() && audio.src && playing.value && window.electron.platform == 'darwin' && savedConfig?.touchBar == 'on') {
-            const currentLine = hasLyricsData ? getCurrentLineText(audio.currentTime) : '';
-            window.electron.ipcRenderer.send("update-current-lyrics", currentLine);
-        }
+        // if (isElectron() && audio.src && playing.value && window.electron.platform == 'darwin' && savedConfig?.touchBar == 'on') {
+        //     const currentLine = hasLyricsData ? getCurrentLineText(audio.currentTime) : '';
+        //     window.electron.ipcRenderer.send("update-current-lyrics", currentLine);
+        // }
     }
 
     if (!hasLyricsData && isElectron() && (desktopLyricsEnabled || statusBarLyricsEnabled || savedConfig?.apiMode === 'on')) {
@@ -1834,7 +1834,7 @@ onMounted(async () => {
         tickListenSession(false);
         // 暂停时清除SMTC位置状态
         mediaSession.clearPositionState();
-        if (isElectron()) window.electron.ipcRenderer.send('play-pause-action', playing.value, audio.currentTime);
+        // if (isElectron()) window.electron.ipcRenderer.send('play-pause-action', playing.value, audio.currentTime);
     });
 
     audio.addEventListener('play', () => {
@@ -1842,7 +1842,7 @@ onMounted(async () => {
         console.log('[PlayerControl] 播放事件');
         tickListenSession(true);
         if (!lyricsData.value.length) getCurrentLyrics();
-        if (isElectron()) window.electron.ipcRenderer.send('play-pause-action', playing.value, audio.currentTime);
+        // if (isElectron()) window.electron.ipcRenderer.send('play-pause-action', playing.value, audio.currentTime);
     });
 
     audio.addEventListener('error', async (e) => {

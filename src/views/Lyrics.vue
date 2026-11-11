@@ -52,7 +52,7 @@
         <!-- 歌词内容 -->
         <div class="lyrics-content-wrapper" ref="lyricsContainerRef" :class="{ 'locked': isLocked }"
             :style="containerStyle">
-            <template v-if="lyrics.length">
+            <template v-if="lyrics?.length">
                 <div class="lyrics-line">
                     <div class="lyrics-content" ref="activeLyricsContentRef" :style="currentLineStyle"
                         :class="{ 'hovering': isHovering && !isLocked }">
@@ -134,10 +134,10 @@ const throttle = (func, delay) => {
     }
 }
 
-const isLinux = window?.electron?.platform === 'linux'
+// const isLinux = tiny.system.isLinux();
 const setIgnoreMouseEvents = (ignore) => {
-    if (isLinux) return
-    window.electron.ipcRenderer.send('set-ignore-mouse-events', ignore)
+    // if (isLinux) return
+    tiny.win.setClickThrough(ignore); // not work, it's a bug
 }
 
 const RESIZE_EDGE_SIZE = 8
@@ -170,15 +170,13 @@ const getResizeCursor = (direction) => {
 }
 
 const setLyricsWindowFixedSize = (fixed) => {
-    window.electron.ipcRenderer.send('lyrics-window-fixed-size', {
-        width: window.innerWidth,
-        height: window.innerHeight,
-        fixed
-    })
+    tiny.win.setSize(window.innerWidth, window.innerHeight);
 }
 
 const sendWindowDrag = throttle((bounds) => {
-    window.electron.ipcRenderer.send('window-drag', bounds)
+    tiny.win.setPosition(bounds.x, bounds.y);
+    tiny.win.setSize(bounds.width, bounds.height);
+    tiny.store.set('lyc-win-data', bounds);
 }, 16)
 
 const updateResizeCursor = (cursor) => {
@@ -197,19 +195,20 @@ const isMouseOnLyricsContent = (event) => {
     })
 }
 
-const isScreenPointInElement = (point, bounds, element) => {
-    if (!point || !bounds || !element) return false
+const isScreenPointInElement = (point, element) => {
+    if (!point || !element) return false
     const rect = element.getBoundingClientRect()
-    const left = bounds.x + rect.left
-    const right = bounds.x + rect.right
-    const top = bounds.y + rect.top
-    const bottom = bounds.y + rect.bottom
+    // const left = bounds.x + rect.left
+    // const right = bounds.x + rect.right
+    // const top = bounds.y + rect.top
+    // const bottom = bounds.y + rect.bottom
+    const { left, right, top, bottom } = rect;
     return point.x >= left && point.x <= right && point.y >= top && point.y <= bottom
 }
 
-const isScreenPointInSelector = (point, bounds, selector) => {
+const isScreenPointInSelector = (point, selector) => {
     return Array.from(document.querySelectorAll(selector)).some((element) => (
-        isScreenPointInElement(point, bounds, element)
+        isScreenPointInElement(point, element)
     ))
 }
 
@@ -319,18 +318,15 @@ const handleColorChange = (color, type) => {
     }
 }
 
-const persistDesktopLyricsSetting = (value) => {
-    const savedSettings = JSON.parse(localStorage.getItem('settings') || '{}')
-    savedSettings.desktopLyrics = value
-    localStorage.setItem('settings', JSON.stringify(savedSettings))
-    window.electron.ipcRenderer.send('save-settings', JSON.parse(JSON.stringify(savedSettings)))
-}
-
-const sendAction = (action) => {
+const sendAction = async (action) => {
     if (action === 'close-lyrics' || action === 'display-lyrics') {
-        persistDesktopLyricsSetting(action === 'display-lyrics' ? 'on' : 'off')
+        const settings = await tiny.store.get('settings');
+        settings.desktopLyrics = action === 'display-lyrics' ? 'on' : 'off';
+        await tiny.store.set('settings', settings);
+        await tiny.api.call('desktopLyrics', { show: settings.desktopLyrics === 'on' });
     }
-    window.electron.ipcRenderer.send('desktop-lyrics-action', action)
+
+    await tiny.api.call('lycAction', { action });
 }
 
 const togglePlay = () => {
@@ -505,20 +501,21 @@ const pollHoverState = async () => {
     if (hoverPollingPending || isDragging.value || resizeState) return
     hoverPollingPending = true
     try {
-        const state = await window.electron.ipcRenderer.invoke('lyrics-window-pointer-state')
-        const point = state?.cursor
-        const bounds = state?.bounds
-        const isInControls = isScreenPointInSelector(point, bounds, '.controls-overlay, .lock-button')
+        const position = await tiny.app.mousePosition();
+        const point = position.window;
+        const isInControls = isScreenPointInSelector(point, '.controls-overlay, .lock-button')
+
+        if(!point.inside) return handleMouseLeave();
 
         if (isLocked.value) {
-            const isOnLyrics = isScreenPointInSelector(point, bounds, '.lyrics-content')
+            const isOnLyrics = isScreenPointInSelector(point, '.lyrics-content')
             if (isOnLyrics || isInControls) {
                 document.querySelector('.controls-overlay')?.classList.add('show-locked-controls')
                 setIgnoreMouseEvents(!isInControls)
                 return
             }
         } else {
-            const isInContainer = isScreenPointInSelector(point, bounds, '.lyrics-panel')
+            const isInContainer = isScreenPointInSelector(point, '.lyrics-panel')
             if (isInContainer || isInControls) return
         }
 
@@ -533,7 +530,7 @@ const startHoverPolling = () => {
     hoverPollingTimer = setInterval(pollHoverState, 120)
 }
 
-window.electron.ipcRenderer.on('lyrics-data', (_event, data) => {
+tiny.api.on('lyrics-data', (data) => {
     isPlaying.value = data.playing
     if (data.currentTime < 1) {
         lyrics.value = processLyricsData(data.lyricsData);
@@ -561,7 +558,7 @@ const processLyricsData = (lyricsData) => {
     });
 }
 
-window.electron.ipcRenderer.on('playing-status', (_event, playing) => {
+tiny.api.on('playing-status', (playing) => {
     isPlaying.value = !!playing
 })
 
@@ -572,10 +569,9 @@ const fontFamilyFallback = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Robot
 
 const escapeFontFamily = (fontFamily) => String(fontFamily).replace(/\\/g, '\\\\').replace(/"/g, '\\"')
 
-const getLocalSettings = () => JSON.parse(localStorage.getItem('settings') || '{}')
-
-const loadDesktopLyricsFont = (settings = getLocalSettings()) => {
-    desktopLyricsFont.value = settings?.desktopLyricsFont || ''
+const loadDesktopLyricsFont = async () => {
+    const settings = await tiny.store.get('settings');
+    desktopLyricsFont.value = settings.desktopLyricsFont || '';
 }
 
 const handleStorageChange = (event) => {
@@ -588,7 +584,13 @@ const changeFontSize = (delta) => {
     localStorage.setItem('lyrics-font-size', fontSize.value)
 }
 
-onMounted(() => {
+onMounted(async () => {
+    tiny.win.setAlwaysOnTop(true);
+    const lycWinData = await tiny.store.get('lyc-win-data');
+    if(lycWinData) {
+        tiny.win.setSize(lycWinData.width, lycWinData.height);
+        if(lycWinData.x && lycWinData.y) tiny.win.setPosition(lycWinData.x, lycWinData.y);
+    }
     isLocked.value = localStorage.getItem('lyrics-lock') === 'true'
     setIgnoreMouseEvents(true)
     loadDesktopLyricsFont()
@@ -604,6 +606,7 @@ onMounted(() => {
 })
 
 const onDrag = (event) => {
+    if(isLocked.value) return;
     if (resizeState) {
         const deltaX = event.screenX - resizeState.startScreenX
         const deltaY = event.screenY - resizeState.startScreenY

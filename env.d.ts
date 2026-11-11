@@ -1,3 +1,3 @@
-/// <reference types="../backend/tiny.d.ts" />
+/// <reference types="../backend/types/tiny.d.ts" />
 
 declare const tiny: Tiny;
