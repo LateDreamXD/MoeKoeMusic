@@ -22,7 +22,6 @@ export default defineConfig({
 		},
 	},
 	build: {
-		emptyOutDir: true,
-		outDir: path.resolve(import.meta.dirname, '..', 'dist')
+		emptyOutDir: true
 	}
 });
